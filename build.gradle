@@ -1,0 +1,45 @@
+buildscript {
+    ext.kotlin_version = '1.5.31'
+
+    repositories {
+        mavenCentral()
+    }
+}
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.5.31"
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    implementation 'io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.0.6'
+    implementation 'com.typesafe:config:1.4.1'
+}
+
+jar {
+    manifest {
+        def manifestClasspath =
+                configurations.compileClasspath.collect { it.name }.join(' ')
+
+        attributes 'Implementation-Title': 'bot',
+                'Main-Class': 'MainKt',
+                'Class-Path': manifestClasspath
+    }
+}
+
+task dist(type: Copy, dependsOn: build) {
+    from(configurations.compileClasspath)
+    from(jar)
+
+    from('etc') {
+        include('run.sh')
+        include('stop.sh')
+    }
+
+    into 'dist'
+}
